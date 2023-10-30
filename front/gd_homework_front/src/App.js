@@ -2,16 +2,17 @@ import React, { useState, useEffect } from 'react';
 import Category from './Category';
 import SubcategoriesList from './Subcategories';
 import {ReactComponent as Logo} from './images/logo.svg'
+import * as settings from "./settings.js"
 
 function App() {
   const [data, setData] = useState([]);
   const [selectedSubcategoryData, setSelectedSubcategoryData] = useState(null);
   const [svgWidth, setSvgWidth] = useState(0);
   const [svgHeight, setSvgHeight] = useState(0);
-  const url = "https://localhost:44325/";
+  const apiUrl = settings.API_SERVER;
 
   useEffect(() => {
-    fetch(url + "api/getCategoriesAndSubcategories")
+    fetch(apiUrl + "getCategoriesAndSubcategories")
       .then((response) => response.json())
       .then((data) => setData(data))
       .catch((error) => {
@@ -38,6 +39,8 @@ function App() {
     };
     }, []);
 
+    setCategoryNameOnButtonClick();
+
   return (
     <>
     <div className="App">
@@ -54,7 +57,13 @@ function App() {
             <Category key={index} {...category} selectedSubcategoryData={selectedSubcategoryData} setSelectedSubcategoryData={setSelectedSubcategoryData}/>
           ))}
         </div>
+       
         <div className="table-container">
+        <div> 
+          <p id='categoryClicked' className='category-name hidden'></p>
+          <p id="currentCategory" className="category-name"></p>
+          <p id='subcategoryClicked'></p>
+        </div>
           {selectedSubcategoryData && (
             <SubcategoriesList selectedSubcategoryData={selectedSubcategoryData} />
           )}
@@ -65,4 +74,15 @@ function App() {
   );
 }
 
+function setCategoryNameOnButtonClick() {
+  const buttons = document.querySelectorAll('.dropdown-button');
+  const categoryClickedName = document.getElementById("categoryClicked");
+  buttons.forEach((button) => {
+    button.addEventListener('click', (event) => {
+      const clickedButton = event.target;
+      const buttonName = clickedButton.textContent;
+      categoryClickedName.textContent = buttonName;
+    });
+  });
+};
 export default App;

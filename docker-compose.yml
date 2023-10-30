@@ -1,0 +1,23 @@
+version: '1'
+services:
+  webapp:
+    image: domasdalekas/gd_homework_backend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - 80
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+
+  reactapp:
+    image: domas_dalekas/gd_homework:1.24
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    expose:
+      - 3000
+    ports:
+      - "5000:3000"

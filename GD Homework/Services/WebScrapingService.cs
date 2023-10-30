@@ -6,7 +6,7 @@ namespace GD_Homework.Services
 {
 	public interface IWebScrapingService
 	{
-		List<Category> GetCategoriesAndSubcategories();
+		List<Category> GetCategories();
 
 		List<Product> GetProductsBySubcategory(string subcategoryLink);
 	}
@@ -26,7 +26,7 @@ namespace GD_Homework.Services
 			return document;
 		}
 
-		public List<Category> GetCategoriesAndSubcategories()
+		public List<Category> GetCategories()
 		{
 			var mainUrl = "https://www.geradovana.lt/";
 

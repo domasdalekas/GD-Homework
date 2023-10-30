@@ -5,7 +5,7 @@ function SubcategoriesList({ selectedSubcategoryData }) {
   return (
     <div className="table-container">
       {selectedSubcategoryData && (
-        <Table>
+        <Table className="subcategories-table">
           <thead>
             <tr>
               <th>Klasifikacija</th>

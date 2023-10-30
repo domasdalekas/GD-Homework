@@ -13,7 +13,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
 
   reactapp:
-    image: domas_dalekas/gd_homework:1.24
+    image: domasdalekas/gd_homework_front:latest
     build:
       context: ./app
       dockerfile: Dockerfile

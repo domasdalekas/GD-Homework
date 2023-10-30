@@ -4,7 +4,7 @@ import * as settings from "./settings.js"
 
 function Category({name, subcategories,setSelectedSubcategoryData}) {
   const apiUrl = settings.API_SERVER;
-  const handleSubcategoryClick = (subcategoryUrl, subcategoryName) => {
+  const handleSubcategoryClick = (subcategoryUrl, subcategoryName, categoryName) => {
     fetch(apiUrl + `getSubcategoryInformation?subcategoryUrl=${encodeURIComponent(subcategoryUrl)}`)
       .then((response) => {
         return response.json();
@@ -15,12 +15,10 @@ function Category({name, subcategories,setSelectedSubcategoryData}) {
       .catch((error) => {
         console.error('Error:', apiUrl);
       });
+      let currentCategory = document.getElementById("currentCategory");
+      currentCategory.textContent = categoryName;
       let subcategoryClickedName = document.getElementById("subcategoryClicked");
       subcategoryClickedName.textContent = subcategoryName;
-      subcategoryClickedName.classList.remove("hidden");
-      let currentCategory = document.getElementById("currentCategory");
-      let categoryClickedName = document.getElementById("categoryClicked");
-      currentCategory.textContent = categoryClickedName.textContent;
   };
 
   return (
@@ -32,7 +30,7 @@ function Category({name, subcategories,setSelectedSubcategoryData}) {
         </Dropdown.Toggle>
         <Dropdown.Menu>
           {subcategories.map((subcategory, index) => (
-            <Dropdown.Item key={index} value={subcategory.linkToSubCategory} onClick={() => handleSubcategoryClick(subcategory.linkToSubCategory, subcategory.name)}>
+            <Dropdown.Item key={index} value={subcategory.linkToSubCategory} onClick={() => handleSubcategoryClick(subcategory.linkToSubCategory, subcategory.name, name)}>
               {subcategory.name}
             </Dropdown.Item>
           ))}

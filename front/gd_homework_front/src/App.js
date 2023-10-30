@@ -34,12 +34,10 @@ function App() {
 
     window.addEventListener('resize', handleResize);
 
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-    }, []);
-
-    setCategoryNameOnButtonClick();
+  return () => {
+    window.removeEventListener('resize', handleResize);
+  };
+  }, []);
 
   return (
     <>
@@ -73,16 +71,4 @@ function App() {
     </>
   );
 }
-
-function setCategoryNameOnButtonClick() {
-  const buttons = document.querySelectorAll('.dropdown-button');
-  const categoryClickedName = document.getElementById("categoryClicked");
-  buttons.forEach((button) => {
-    button.addEventListener('click', (event) => {
-      const clickedButton = event.target;
-      const buttonName = clickedButton.textContent;
-      categoryClickedName.textContent = buttonName;
-    });
-  });
-};
 export default App;

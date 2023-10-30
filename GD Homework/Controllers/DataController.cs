@@ -10,12 +10,10 @@ namespace GD_Homework.Controllers
     [Route("api")]
     public class DataController : ControllerBase
     {
-        private readonly ILogger<DataController> _logger;
         private readonly IWebScrapingService _scrapingService;
 
-        public DataController(ILogger<DataController> logger, IWebScrapingService scrapingService)
+        public DataController(IWebScrapingService scrapingService)
         {
-            _logger = logger;
             _scrapingService = scrapingService;
         }
 
@@ -23,7 +21,7 @@ namespace GD_Homework.Controllers
 		[Route("getCategoriesAndSubcategories")]
 		public List<Category> GetCategoriesAndSubcategories()
 		{
-			return _scrapingService.GetCategoriesAndSubcategories();
+			return _scrapingService.GetCategories();
 		}
 
 		[HttpGet]

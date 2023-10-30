@@ -4,16 +4,11 @@ using System.Text.RegularExpressions;
 
 namespace GD_Homework.Services
 {
-	public interface IWebScrapingService
-	{
-		List<Category> GetCategories();
-
-		List<Product> GetProductsBySubcategory(string subcategoryLink);
-	}
-
 	public class WebScrapingService : IWebScrapingService
 	{
-		public WebScrapingService()
+		private const string mainUrl = "https://www.geradovana.lt/";
+
+        public WebScrapingService()
 		{
 
 		}
@@ -26,10 +21,12 @@ namespace GD_Homework.Services
 			return document;
 		}
 
+		/// <summary>
+		/// Scrapes categories 
+		/// </summary>
+		/// <returns></returns>
 		public List<Category> GetCategories()
 		{
-			var mainUrl = "https://www.geradovana.lt/";
-
 			var categories = new List<Category>();
 
 			HtmlDocument document = GetDocument(mainUrl);
@@ -47,12 +44,11 @@ namespace GD_Homework.Services
 					string categoryName = category.SelectSingleNode(".//b").InnerText;
 
 					var subcategories = node.SelectNodes(".//a[@class='list-item']");
-					var subcategoryList = new List<Subcategory>();
+					var subcategoryList = new List<Subcategory>(subcategories.Count);
 					foreach (var subcategory in subcategories) {
 						string subcategoryLink = subcategory.GetAttributeValue("href", "");
 						string subcategoryName = subcategory.InnerText.Trim();
-						var products = new List<Product>();
-						var subcategoryModel = new Subcategory(subcategoryName, subcategoryLink, products);
+						var subcategoryModel = new Subcategory(subcategoryName, subcategoryLink);
 						subcategoryList.Add(subcategoryModel);
 					}
 					var categoryModel = new Category(categoryLink, categoryName, subcategoryList);
@@ -66,45 +62,63 @@ namespace GD_Homework.Services
 		public List<Product> GetProductsBySubcategory(string subcategoryLink)
 		{
 			var products = new List<Product>();
-			HtmlDocument document = new HtmlDocument();
 			var pages = GetSubcategoryPageCount(subcategoryLink);
-			try {
-				for (int i = 1; i <= pages; i++) {
-					var urlWithPage = subcategoryLink + $"?page={i}";
-					document = GetDocument(urlWithPage);
-					var nodesToGetStandardString = "//div[contains(concat(' ', @class, ' '), 'product ')]";
-					var allNodes = GetRequiredNodes(nodesToGetStandardString, document);
-					var productModel = new Product();
-					foreach (var node in allNodes) {
-						var productTitleNode = node.SelectSingleNode(".//span[@class='productname']");
-						if (productTitleNode == null || productTitleNode.InnerText.Contains("Dovanų kortelė")) {
-							continue;
-						}
-						var productPriceNode = node.SelectSingleNode(".//span[@class='productprice']");
-						if (productPriceNode == null) {
-							continue;
-						}
-						var productPriceString = productPriceNode.InnerText;
-						if (productPriceString == null) {
-							continue;
-						}
-						var productPrice = RemoveEuroSymbolAndConvertToDecimal(productPriceString);
-						if (node.Attributes[0].Value.Contains("gift-premium")) {
-							productModel = new Product(productPrice, _Classification.Luxurious);
-						} else if (node.Attributes[0].Value.Contains("gift-forYourself")) {
-							productModel = new Product(productPrice, _Classification.Restrictions);
-						} else {
-							productModel = new Product(productPrice, _Classification.Standard);
-						}
-						products.Add(productModel);
-					}
-				}
 
-				return products;
-			} catch(Exception ex) {
-				throw ex;
+			for (int i = 1; i <= pages; i++) {
+				var urlWithPage = subcategoryLink + $"?page={i}";
+                HtmlDocument document = GetDocument(urlWithPage);
+				var nodesToGetStandardString = "//div[contains(concat(' ', @class, ' '), 'product ')]";
+				var allNodes = GetRequiredNodes(nodesToGetStandardString, document);
+                foreach (var node in allNodes.Where(n => IsNodeAProduct(n)))
+				{
+					var productPriceString = node.SelectSingleNode(".//span[@class='productprice']").InnerText;
+                    var productPrice = RemoveEuroSymbolAndConvertToDecimal(productPriceString);
+					var nodeProductType = node.SelectSingleNode(nodesToGetStandardString);
+					var nodeProductTypeString = node.Attributes.Single(att => att.Value.Contains("product")).Value;
+					Classification productClassification;
+					switch(nodeProductTypeString)
+					{
+						case "product ":
+							productClassification = Classification.Standard;
+							break;
+						case "product gift-premium":
+							productClassification = Classification.Luxurious;
+							break;
+						case "product gift-forYourself":
+							productClassification = Classification.Restrictions;
+							break;
+						default:
+							throw new ArgumentNullException($"Product classification {nodeProductTypeString} not recognized");
+					}
+						
+					products.Add(new Product(productPrice, productClassification));
+				}
 			}
+
+			return products;
+
 		}
+
+		private bool IsNodeAProduct(HtmlNode node)
+		{
+            var productTitleNode = node.SelectSingleNode(".//span[@class='productname']");
+            if (productTitleNode == null || productTitleNode.InnerText.Contains("Dovanų kortelė"))
+            {
+                return false;
+            }
+            var productPriceNode = node.SelectSingleNode(".//span[@class='productprice']");
+            if (productPriceNode == null)
+            {
+                return false;
+            }
+            var productPriceString = productPriceNode.InnerText;
+            if (productPriceString == null)
+            {
+                return false;
+            }
+
+			return true;
+        }
 
 		public HtmlNodeCollection GetRequiredNodes(string nodesToGet, HtmlDocument document)
 		{
@@ -114,7 +128,6 @@ namespace GD_Homework.Services
 		public int GetSubcategoryPageCount(string url)
 		{
 			var pages = 1;
-			var pagesString = "";
 			var document = GetDocument(url);
 
 			var pagesNode = document.DocumentNode.SelectSingleNode("//select[@id='PageList']");
@@ -123,7 +136,7 @@ namespace GD_Homework.Services
 				return pages;
 			}
 
-			pagesString = pagesNode.GetAttributeValue("total-pages", "");
+			var pagesString = pagesNode.GetAttributeValue("total-pages", "");
 
 			if (int.TryParse(pagesString, out pages)) {
 				return pages;

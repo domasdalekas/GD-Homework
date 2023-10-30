@@ -9,7 +9,19 @@ namespace GD_Homework.Helpers
 			var enumType = value.GetType();
 			var enumValue = Enum.GetName(enumType, value);
 
-			var displayAttribute = enumType.GetField(enumValue)
+			if(enumValue == null)
+			{
+				throw new ArgumentNullException("Enum is null");
+			}
+
+			var enumTypeFieldValue = enumType.GetField(enumValue);
+
+			if (enumTypeFieldValue == null)
+			{
+                throw new ArgumentNullException("Enum type field value is null");
+            }
+
+            var displayAttribute = enumTypeFieldValue
 				.GetCustomAttributes(typeof(DisplayAttribute), false)
 				.SingleOrDefault() as DisplayAttribute;
 

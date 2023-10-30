@@ -2,17 +2,14 @@
 {
     public class Subcategory
     {
-        public string Name { get; private set; }
+        public string Name { get; }
 
-        public string LinkToSubCategory { get; private set; }
+        public string LinkToSubCategory { get; }
 
-        public List<Product> Products { get; private set; }
-
-        public Subcategory(string name, string linkToSubCategory, List<Product> products)
+        public Subcategory(string name, string linkToSubCategory)
         {
             Name = name;
             LinkToSubCategory = linkToSubCategory;
-            Products = products;
         }
     }
 }

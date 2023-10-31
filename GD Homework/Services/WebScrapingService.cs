@@ -22,9 +22,9 @@ namespace GD_Homework.Services
 		}
 
 		/// <summary>
-		/// Scrapes categories 
+		/// Scrapes categories from www.geradovana.lt, gets their subcategories
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>List of categories</returns>
 		public List<Category> GetCategories()
 		{
 			var categories = new List<Category>();
@@ -59,6 +59,12 @@ namespace GD_Homework.Services
 			return categories;
 		}
 
+		/// <summary>
+		/// By providing url to subcategory, method scrapes its products
+		/// </summary>
+		/// <param name="subcategoryLink"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentNullException"></exception>
 		public List<Product> GetProductsBySubcategory(string subcategoryLink)
 		{
 			var products = new List<Product>();
@@ -98,7 +104,11 @@ namespace GD_Homework.Services
 			return products;
 
 		}
-
+		/// <summary>
+		/// method to check is node a product based on class names in html
+		/// </summary>
+		/// <param name="node"></param>
+		/// <returns></returns>
 		private bool IsNodeAProduct(HtmlNode node)
 		{
             var productTitleNode = node.SelectSingleNode(".//span[@class='productname']");
@@ -124,7 +134,11 @@ namespace GD_Homework.Services
 		{
 			return document.DocumentNode.SelectNodes(nodesToGet);
 		}
-
+		/// <summary>
+		/// method to get all the pages for given subcategory listing
+		/// </summary>
+		/// <param name="url"></param>
+		/// <returns></returns>
 		public int GetSubcategoryPageCount(string url)
 		{
 			var pages = 1;
@@ -144,7 +158,11 @@ namespace GD_Homework.Services
 
 			return pages;
 		}
-
+		/// <summary>
+		/// removes euro symbol from html, converts string value to decimal
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
 		public decimal RemoveEuroSymbolAndConvertToDecimal(string value)
 		{
 			if (!value.Contains("€")) {
